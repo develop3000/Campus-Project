@@ -1,0 +1,44 @@
+/* Navbar.css */
+nav {
+  position: fixed; 
+  top: 0;
+  width: 100%; /* Spans the entire width of the screen */
+  height: 80px; /* Adjust the height of the navbar */
+  background-color: #27172c; /* Background color of the navbar */
+  color: white; /* Text color */
+  display: flex; /* Horizontal layout */
+  align-items: center; /* Vertically center items */
+  justify-content: space-between; /* Space between the logo and the links */
+  padding: 0 20px; /* Add padding for spacing on the left and right */
+  z-index: 1000; /* Ensures it stays above other elements */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5); /* Optional shadow for better visuals */
+}
+
+nav img {
+  height: 70px; /* Increase logo size */
+  width: 100px; /* Maintain aspect ratio */
+  display: flex;
+  
+}
+
+nav ul {
+  list-style: none; /* Removes default bullets */
+  display: flex; /* Horizontal layout for the list */
+  gap: 20px; /* Adds spacing between list items */
+  margin: 0; /* Remove default margins */
+  padding-right: 30px;
+  text-decoration: none;
+}
+
+nav ul li {
+  font-size: 18px; 
+  padding-right: 20px;
+
+  cursor: pointer; 
+}
+
+nav ul li:hover {
+  text-decoration: none; /* Add an underline effect on hover */
+}
+
+
