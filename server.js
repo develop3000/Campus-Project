@@ -33,8 +33,8 @@ app.use(
       if(!origin) return callback(null, true);
       
       const allowedOrigins = [
-        'https://campus-project-ljun.onrender.com',  // Your backend URL
-        'https://campus-project.onrender.com'        // Your frontend URL
+        'https://campus-project-ljun.onrender.com',        // Your backend URL
+        'https://campus-project-frontend.onrender.com'     // Your frontend URL
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
@@ -43,9 +43,17 @@ app.use(
       }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
+    credentials: true
   })
 );
+
+// Add these headers to all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 // Serve static files from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -284,6 +292,7 @@ app.post("/login", async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
+      domain: '.onrender.com',
       maxAge: 24 * 60 * 60 * 1000
     });
 
