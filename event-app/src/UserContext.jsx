@@ -2,8 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 // Set the base URL for all axios requests
-axios.defaults.baseURL = 'https://campus-project-ljun.onrender.com';
-// Enable credentials for cross-origin requests
+axios.defaults.baseURL = 'https://campus-project-ljun.onrender.com';  // Always use deployed backend
 axios.defaults.withCredentials = true;
 
 export const UserContext = createContext();

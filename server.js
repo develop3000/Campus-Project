@@ -33,10 +33,8 @@ app.use(
       if(!origin) return callback(null, true);
       
       const allowedOrigins = [
-        'http://localhost:5173', 
-        'http://localhost:3000',
         'https://campus-project-ljun.onrender.com',  // Your backend URL
-        'https://campus-project.onrender.com'        // Your frontend URL (adjust if different)
+        'https://campus-project.onrender.com'        // Your frontend URL
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
