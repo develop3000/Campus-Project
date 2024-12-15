@@ -1,11 +1,20 @@
 {
-  "name": "campus-project",
+  "name": "campus-project-backend",
   "version": "1.0.0",
   "scripts": {
-    "install-client": "cd client && npm install",
-    "install-server": "cd server && npm install",
-    "build-client": "cd client && npm run build",
-    "start": "cd server && node server.js",
-    "build": "npm run install-client && npm run install-server && npm run build-client"
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }
