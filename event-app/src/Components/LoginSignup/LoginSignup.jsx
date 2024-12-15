@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../UserContext';
-import axios from 'axios';
+import api from '../../api/axios';
 import { toast } from 'react-toastify';
 
 function LoginSignup() {
@@ -29,7 +29,7 @@ function LoginSignup() {
 
     try {
       const endpoint = isLoginMode ? '/login' : '/register';
-      const { data } = await axios.post(endpoint, isLoginMode ? {
+      const { data } = await api.post(endpoint, isLoginMode ? {
         email: formData.email,
         password: formData.password
       } : {
