@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: campus-project-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: NODE_ENV
+        value: production
