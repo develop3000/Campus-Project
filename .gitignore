@@ -1,1 +1,10 @@
-/node_modules
+# Ignore uploaded files
+uploads/*
+# Keep the uploads directory
+!uploads/.gitkeep
+
+# Ignore node modules
+node_modules/
+
+# Ignore environment files
+.env
