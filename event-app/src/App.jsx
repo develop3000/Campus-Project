@@ -13,8 +13,8 @@ import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Configure Axiosl
-axios.defaults.baseURL = 'http://localhost:4000';
+// Configure Axios to use the deployed backend URL
+axios.defaults.baseURL = 'https://campus-project-ljun.onrender.com';
 axios.defaults.withCredentials = true;
 
 function App() {
