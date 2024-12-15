@@ -13,7 +13,7 @@ const { Pool } = require("pg");
 const app = express();
 
 // JWT Secret Key
-const jwtSecret = "your_jwt_secret";
+const jwtSecret = process.env.JWT_SECRET;
 
 // Database Pool
 const pool = new Pool({
@@ -35,8 +35,8 @@ app.use(
       const allowedOrigins = [
         'http://localhost:5173', 
         'http://localhost:3000',
-        'https://campus-project-backend.onrender.com',  // Your backend URL
-        'https://campus-project-frontend.onrender.com'   // Add this for your frontend URL
+        'https://campus-project-ljun.onrender.com',  // Your backend URL
+        'https://campus-project.onrender.com'        // Your frontend URL (adjust if different)
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
@@ -284,8 +284,8 @@ app.post("/login", async (req, res) => {
     // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000
     });
 
