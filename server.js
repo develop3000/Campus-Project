@@ -41,17 +41,19 @@ app.use(
   })
 );
 
-// Serve static files from the 'uploads' directory
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-// Add a middleware to ensure uploads directory exists
-app.use((req, res, next) => {
-  const uploadDir = path.join(__dirname, 'uploads');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
+// Update static file serving with proper CORS headers
+app.use("/uploads", (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://campus-project-front-end.onrender.com');
+  res.header('Access-Control-Allow-Methods', 'GET');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
-});
+}, express.static(path.join(__dirname, "uploads")));
 
 // Multer setup for image uploads
 const storage = multer.diskStorage({
@@ -619,6 +621,18 @@ app.get('/auth-status', (req, res) => {
     });
   } catch (error) {
     res.json({ authenticated: false });
+  }
+});
+
+// Add a test route for image access
+app.get('/test-image/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filepath = path.join(__dirname, 'uploads', filename);
+  
+  if (fs.existsSync(filepath)) {
+    res.json({ exists: true, path: filepath });
+  } else {
+    res.json({ exists: false, path: filepath });
   }
 });
 

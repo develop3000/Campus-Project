@@ -166,8 +166,9 @@ export default function EventsPage() {
                   alt={event.title}
                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
                   onError={(e) => {
-                    console.error('Image failed to load:', e);
-                    e.target.src = 'fallback-image-url'; // Optional: provide a fallback image
+                    console.error('Image load error:', event.image);
+                    e.target.src = '/placeholder-image.png'; // Add a placeholder image in your public folder
+                    e.target.onerror = null; // Prevent infinite loop if placeholder also fails
                   }}
                 />
               )}
