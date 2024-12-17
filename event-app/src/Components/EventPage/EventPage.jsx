@@ -157,7 +157,7 @@ export default function EventsPage() {
             >
               {event.image && (
                 <img 
-                  src={`http://localhost:4000/uploads/${event.image}`}
+                  src={`https://campus-project-back-end.onrender.com/uploads/${event.image}`}
                   alt={event.title}
                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
                 />
