@@ -37,8 +37,7 @@ app.use(
       'X-Requested-With', 
       'Accept',
       'Access-Control-Allow-Credentials'
-    ],
-    exposedHeaders: ['Set-Cookie']
+    ]
   })
 );
 
@@ -285,22 +284,21 @@ app.post("/login", async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    // Set cookie with proper options
+    // Update cookie settings
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // Enable for HTTPS
-      sameSite: 'none', // Required for cross-site cookies
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      path: '/',
-      domain: '.onrender.com' // Adjust based on your domain
+      path: '/'
+      // Remove domain setting to let browser handle it
     });
 
     // Send user data without password
     const { password: _, ...userWithoutPassword } = user;
     res.json({
       message: "Login successful",
-      user: userWithoutPassword,
-      token // Optionally send token in response
+      user: userWithoutPassword
     });
   } catch (error) {
     console.error("Login error:", error);
