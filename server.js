@@ -33,6 +33,7 @@ app.use(
       if(!origin) return callback(null, true);
       
       const allowedOrigins = [
+       
         'https://campus-project-front-end.onrender.com'
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
@@ -283,24 +284,26 @@ app.post("/login", async (req, res) => {
     // Create JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      jwtSecret
+      jwtSecret,
+      { expiresIn: '24h' }
     );
 
-    // Set cookie
+    // Set cookie with proper options
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      domain: '.onrender.com',
+      secure: true, // Enable for HTTPS
+      sameSite: 'none', // Required for cross-site cookies
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000
+      domain: '.onrender.com' // Adjust based on your domain
     });
 
     // Send user data without password
     const { password: _, ...userWithoutPassword } = user;
     res.json({
       message: "Login successful",
-      user: userWithoutPassword
+      user: userWithoutPassword,
+      token // Optionally send token in response
     });
   } catch (error) {
     console.error("Login error:", error);
