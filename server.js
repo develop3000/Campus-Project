@@ -33,7 +33,6 @@ app.use(
       if(!origin) return callback(null, true);
       
       const allowedOrigins = [
-        'https://campus-project-back-end.onrender.com',
         'https://campus-project-front-end.onrender.com'
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
@@ -43,18 +42,17 @@ app.use(
       }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
-    exposedHeaders: ['set-cookie'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With', 
+      'Accept',
+      'Access-Control-Allow-Credentials'
+    ],
+    exposedHeaders: ['Set-Cookie'],
     credentials: true
   })
 );
-
-// Add these headers to all responses
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
 
 // Serve static files from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

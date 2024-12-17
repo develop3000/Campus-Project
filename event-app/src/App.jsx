@@ -31,7 +31,7 @@ function App() {
             <Route path="aboutus" element={<AboutUs />} />
             <Route path="events" element={<EventPage />} />
           </Route>
-          <Route path="/login" element={<LoginSignup />} />
+          <Route path="login" element={<LoginSignup />} />
         </Routes>
       </UserContextProvider>
     </Router>
