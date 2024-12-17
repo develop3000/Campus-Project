@@ -1,12 +1,15 @@
-# Ignore uploaded files
-uploads/*
-# Keep the uploads directory
-!uploads/.gitkeep
-
-# Ignore node modules
-node_modules/
-
-# Ignore environment files
+# Environment variables
 .env
 .env.local
 .env.*
+
+# Dependencies
+/node_modules
+
+# Build files
+/build
+/dist
+
+# Uploads
+/uploads/*
+!uploads/.gitkeep

@@ -13,7 +13,7 @@ const { Pool } = require("pg");
 const app = express();
 
 // JWT Secret Key
-const jwtSecret = process.env.JWT_SECRET;
+const jwtSecret = process.env.JWT_SECRET || "babakofficial";
 
 // Database Pool
 const pool = new Pool({
