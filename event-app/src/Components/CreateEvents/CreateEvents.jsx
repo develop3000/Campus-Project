@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+axios.defaults.baseURL = 'https://campus-project-back-end.onrender.com';
+axios.defaults.withCredentials = true;
+
 export default function CreateEvent() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
@@ -49,17 +52,24 @@ export default function CreateEvent() {
         formDataToSend.append('image', formData.image);
       }
 
-      await axios.post('/createEvent', formDataToSend, {
+      const response = await axios.post('/createEvent', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
         },
         withCredentials: true
       });
 
-      toast.success('Event created successfully!');
-      navigate('/events');
+      if (response.status === 201) {
+        toast.success('Event created successfully!');
+        navigate('/events');
+      }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to create event');
+      if (error.response?.status === 403) {
+        toast.error('You must be logged in as admin to create events');
+      } else {
+        toast.error(error.response?.data?.error || 'Failed to create event');
+      }
       console.error('Error creating event:', error);
     }
   };

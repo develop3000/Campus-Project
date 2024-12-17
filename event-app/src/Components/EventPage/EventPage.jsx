@@ -4,6 +4,7 @@ import axios from "axios";
 import { UserContext } from '../../UserContext';
 import { toast } from 'react-toastify';
 
+axios.defaults.baseURL = 'https://campus-project-back-end.onrender.com';
 axios.defaults.withCredentials = true;
 
 export default function EventsPage() {
@@ -45,16 +46,20 @@ export default function EventsPage() {
     }
 
     try {
-      const response = await axios.delete(`/event/${eventId}`, { withCredentials: true });
+      const response = await axios.delete(`/event/${eventId}`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
       if (response.status === 200) {
         toast.success('Event deleted successfully');
         loadEvents();
       }
     } catch (err) {
-      if (err.response?.status === 404) {
-        toast.error('Event not found. It may have been already deleted.');
-        loadEvents();
-      } else if (err.response?.status === 401) {
+      if (err.response?.status === 403) {
         toast.error('You must be logged in as admin to delete events');
       } else {
         toast.error(err.response?.data?.error || 'Failed to delete event');

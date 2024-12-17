@@ -29,19 +29,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: function(origin, callback) {
-      if(!origin) return callback(null, true);
-      
-      const allowedOrigins = [
-       
-        'https://campus-project-front-end.onrender.com'
-      ];
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
+    origin: 'https://campus-project-front-end.onrender.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type', 
@@ -50,8 +38,7 @@ app.use(
       'Accept',
       'Access-Control-Allow-Credentials'
     ],
-    exposedHeaders: ['Set-Cookie'],
-    credentials: true
+    exposedHeaders: ['Set-Cookie']
   })
 );
 
