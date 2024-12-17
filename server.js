@@ -79,14 +79,15 @@ const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
-    return res.status(401).json({ error: "Authentication required" });
+    return res.status(401).json({ error: "No token provided" });
   }
 
   try {
-    const user = jwt.verify(token, jwtSecret);
-    req.user = user;
+    const decoded = jwt.verify(token, jwtSecret);
+    req.user = decoded;
     next();
   } catch (error) {
+    console.error("Token verification error:", error);
     res.status(401).json({ error: "Invalid or expired token" });
   }
 };
@@ -562,6 +563,27 @@ app.delete("/event/:id", authenticateToken, requireAdmin, async (req, res) => {
   } catch (error) {
     console.error("Error deleting event:", error);
     res.status(500).json({ error: "Failed to delete event" });
+  }
+});
+
+// Add this after your other routes
+app.get("/verify-auth", authenticateToken, async (req, res) => {
+  try {
+    const query = `SELECT id, name, email, role FROM "Users" WHERE id = $1`;
+    const result = await pool.query(query, [req.user.id]);
+    
+    if (result.rowCount === 0) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const user = result.rows[0];
+    res.json({ 
+      authenticated: true,
+      user: user
+    });
+  } catch (error) {
+    console.error("Auth verification error:", error);
+    res.status(401).json({ error: "Authentication failed" });
   }
 });
 
