@@ -25,13 +25,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Hero />} />
-            <Route path="createevents" element={<CreateEvents />} />
-            <Route path="event/:id" element={<DisplayEvent />} />
-            <Route path="calendar" element={<Calendar />} />
-            <Route path="aboutus" element={<AboutUs />} />
-            <Route path="events" element={<EventPage />} />
+            <Route path="/createevents" element={<CreateEvents />} />
+            <Route path="/event/:id" element={<DisplayEvent />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/aboutus" element={<AboutUs />} />
+            <Route path="/events" element={<EventPage />} />
           </Route>
-          <Route path="login" element={<LoginSignup />} />
+          <Route path="/login" element={<LoginSignup />} />
         </Routes>
       </UserContextProvider>
     </Router>
