@@ -114,7 +114,7 @@ export default function CreateEvent() {
 
   return (
     <div style={containerStyle}>
-      <h1 style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '24px' }}>Post an Event</h1>
+      <h1 style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '24px' }}>Create an Event</h1>
       <form onSubmit={handleSubmit}>
         <div style={formGroupStyle}>
           <label style={labelStyle} htmlFor="title">Title:</label>
