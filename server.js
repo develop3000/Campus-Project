@@ -34,7 +34,7 @@ app.use(
       
       const allowedOrigins = [
         'https://campus-project-back-end.onrender.com',
-        'https://campus-project-front-end.onrender.com'     // Your frontend URL
+        'https://campus-project-front-end.onrender.com'
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
@@ -44,6 +44,7 @@ app.use(
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
+    exposedHeaders: ['set-cookie'],
     credentials: true
   })
 );
@@ -293,6 +294,7 @@ app.post("/login", async (req, res) => {
       secure: true,
       sameSite: 'none',
       domain: '.onrender.com',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000
     });
 

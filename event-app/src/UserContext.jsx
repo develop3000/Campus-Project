@@ -1,5 +1,10 @@
 import { createContext, useState, useEffect } from 'react';
-import api from './api/axios';
+import axios from 'axios';
+
+// Set the base URL for all axios requests
+axios.defaults.baseURL = 'https://campus-project-back-end.onrender.com';
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Access-Control-Allow-Credentials'] = true;
 
 export const UserContext = createContext();
 
@@ -9,12 +14,14 @@ export function UserContextProvider({ children }) {
 
     useEffect(() => {
         // Check if we have a token and try to get user data
-        api.get('/profile').then(({data}) => {
-            setUser(data);
-            setReady(true);
-        }).catch(() => {
-            setReady(true);
-        });
+        axios.get('/profile', { withCredentials: true })
+            .then(({data}) => {
+                setUser(data);
+                setReady(true);
+            })
+            .catch(() => {
+                setReady(true);
+            });
     }, []);
 
     return (
