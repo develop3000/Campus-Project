@@ -37,7 +37,8 @@ app.use(
       'X-Requested-With', 
       'Accept',
       'Access-Control-Allow-Credentials'
-    ]
+    ],
+    exposedHeaders: ['*', 'Authorization']
   })
 );
 
@@ -51,9 +52,15 @@ if (!fs.existsSync(uploadDir)) {
 app.use("/uploads", (req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://campus-project-front-end.onrender.com');
   res.header('Access-Control-Allow-Methods', 'GET');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
-}, express.static(path.join(__dirname, "uploads")));
+}, express.static(path.join(__dirname, "uploads"), {
+  setHeaders: (res, path) => {
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+}));
 
 // Multer setup for image uploads
 const storage = multer.diskStorage({

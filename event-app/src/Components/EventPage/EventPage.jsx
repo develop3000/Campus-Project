@@ -166,9 +166,18 @@ export default function EventsPage() {
                   alt={event.title}
                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
                   onError={(e) => {
-                    console.error('Image load error:', event.image);
-                    e.target.src = '/placeholder-image.png'; // Add a placeholder image in your public folder
-                    e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                    console.error('Image load error for:', event.image);
+                    // Try reloading the image once
+                    const currentSrc = e.target.src;
+                    e.target.src = '';
+                    setTimeout(() => {
+                      e.target.src = currentSrc;
+                    }, 100);
+                    // If it fails again, use placeholder
+                    e.target.onerror = () => {
+                      e.target.src = '/placeholder-image.png';
+                      e.target.onerror = null;
+                    };
                   }}
                 />
               )}
