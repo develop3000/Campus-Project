@@ -64,23 +64,32 @@ const upload = multer({ storage });
 // Helper Functions
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
-
+  
   if (!token) {
-    return res.status(401).json({ error: "No token provided" });
+    console.log("No token found in cookies");
+    return res.status(401).json({ error: "Authentication required" });
   }
 
   try {
     const decoded = jwt.verify(token, jwtSecret);
+    console.log("Token decoded:", decoded); // For debugging
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Token verification error:", error);
-    res.status(401).json({ error: "Invalid or expired token" });
+    console.error("Token verification failed:", error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: "Token expired" });
+    }
+    res.status(401).json({ error: "Invalid token" });
   }
 };
 
 const requireAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== "admin") {
+  console.log("User in requireAdmin:", req.user); // For debugging
+  if (!req.user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  if (req.user.role !== "admin") {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();
@@ -571,6 +580,28 @@ app.get("/verify-auth", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Auth verification error:", error);
     res.status(401).json({ error: "Authentication failed" });
+  }
+});
+
+// Add this route to check authentication status
+app.get('/auth-status', (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.json({ authenticated: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    res.json({ 
+      authenticated: true, 
+      user: {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role
+      }
+    });
+  } catch (error) {
+    res.json({ authenticated: false });
   }
 });
 

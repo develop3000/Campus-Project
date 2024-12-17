@@ -12,15 +12,24 @@ export function UserContextProvider({ children }) {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        // Check if we have a token and try to get user data
-        axios.get('/profile')
-            .then(({data}) => {
-                setUser(data);
+        // Check authentication status when component mounts
+        const checkAuth = async () => {
+            try {
+                const { data } = await axios.get('/auth-status');
+                if (data.authenticated) {
+                    setUser(data.user);
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                setUser(null);
+            } finally {
                 setReady(true);
-            })
-            .catch(() => {
-                setReady(true);
-            });
+            }
+        };
+
+        checkAuth();
     }, []);
 
     return (
