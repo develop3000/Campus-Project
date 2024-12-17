@@ -162,9 +162,13 @@ export default function EventsPage() {
             >
               {event.image && (
                 <img 
-                  src={`https://campus-project-back-end.onrender.com/uploads/${event.image}`}
+                  src={`${axios.defaults.baseURL}/uploads/${event.image}`}
                   alt={event.title}
                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
+                  onError={(e) => {
+                    console.error('Image failed to load:', e);
+                    e.target.src = 'fallback-image-url'; // Optional: provide a fallback image
+                  }}
                 />
               )}
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
