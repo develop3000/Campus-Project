@@ -34,7 +34,6 @@ app.use(
       
       const allowedOrigins = [
               // Your backend  
-        'https://campus-project-back-end.onrender.com',     // Your backend URL
         'https://campus-project-front-end.onrender.com'     // Your frontend URL
       ];
       if (allowedOrigins.indexOf(origin) !== -1) {
