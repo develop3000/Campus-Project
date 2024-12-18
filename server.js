@@ -41,23 +41,14 @@ app.use(
   })
 );
 
-// Ensure uploads directory exists and configure static serving
+// Configure uploads directory
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
   console.log('Created uploads directory at:', uploadDir);
-} else {
-  console.log('Uploads directory exists at:', uploadDir);
-  fs.readdir(uploadDir, (err, files) => {
-    if (err) {
-      console.error('Error reading uploads directory:', err);
-    } else {
-      console.log('Files in uploads directory:', files);
-    }
-  });
 }
 
-// Configure static file serving with CORS headers
+// Configure static file serving
 app.use("/uploads", (req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://campus-project-front-end.onrender.com');
   res.header('Access-Control-Allow-Methods', 'GET');
@@ -67,7 +58,152 @@ app.use("/uploads", (req, res, next) => {
   next();
 }, express.static(uploadDir));
 
-// Image debug routes
+// Multer setup
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+// Helper Functions
+const authenticateToken = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
+const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+  next();
+};
+
+// Routes
+app.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const query = `
+      INSERT INTO "Users" (name, email, password, role, "createdAt", "updatedAt")
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING id, name, email, role;
+    `;
+    const result = await pool.query(query, [name, email, hashedPassword, 'user']);
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Registration failed" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const query = `SELECT * FROM "Users" WHERE email = $1;`;
+    const result = await pool.query(query, [email]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const user = result.rows[0];
+    const passOk = await bcrypt.compare(password, user.password);
+    if (!passOk) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      jwtSecret,
+      { expiresIn: '24h' }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+    const { password: _, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    res.status(500).json({ error: "Login failed" });
+  }
+});
+
+app.post("/createEvent", authenticateToken, requireAdmin, upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, date, time, location, organizer, category } = req.body;
+    const image = req.file ? req.file.filename : null;
+
+    const query = `
+      INSERT INTO "Events" (title, description, date, time, location, organizer, category, image)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *;
+    `;
+    
+    const values = [title, description, date, time, location, organizer, category, image];
+    const result = await pool.query(query, values);
+    
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating event:", error);
+    res.status(500).json({ error: "Failed to create event" });
+  }
+});
+
+app.get("/events", async (req, res) => {
+  try {
+    const query = `SELECT * FROM "Events" ORDER BY date ASC;`;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch events" });
+  }
+});
+
+app.get('/auth-status', (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.json({ authenticated: false });
+  }
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    res.json({ 
+      authenticated: true, 
+      user: {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role
+      }
+    });
+  } catch (error) {
+    res.json({ authenticated: false });
+  }
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none'
+  });
+  res.json({ message: "Logged out successfully" });
+});
+
+// Debug route for images
 app.get('/debug-image/:filename', (req, res) => {
   const filename = req.params.filename;
   const filepath = path.join(uploadDir, filename);
@@ -89,9 +225,8 @@ app.get('/debug-image/:filename', (req, res) => {
   });
 });
 
-// ... rest of your routes ...
-
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Upload directory:', uploadDir);
 });
