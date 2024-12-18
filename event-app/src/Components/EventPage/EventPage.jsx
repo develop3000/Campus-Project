@@ -166,9 +166,8 @@ export default function EventsPage() {
                   alt={event.title}
                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
                   onError={(e) => {
-                    console.log('Attempted image URL:', `${axios.defaults.baseURL}/uploads/${event.image}`);
                     console.error('Image load error for:', event.image);
-                    e.target.src = '/placeholder-image.png';
+                    e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
                     e.target.onerror = null;
                   }}
                 />
