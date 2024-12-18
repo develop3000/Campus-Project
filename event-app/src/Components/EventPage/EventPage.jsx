@@ -161,16 +161,26 @@ export default function EventsPage() {
               onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'}
             >
               {event.image && (
-                <img 
-                  src={`${axios.defaults.baseURL}/uploads/${event.image}`}
-                  alt={event.title}
-                  style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
-                  onError={(e) => {
-                    console.error('Image load error for:', event.image);
-                    e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
-                    e.target.onerror = null;
-                  }}
-                />
+                <div style={{ position: 'relative', width: '100%', height: '200px' }}>
+                  <img 
+                    src={`${axios.defaults.baseURL}/uploads/${event.image}`}
+                    alt={event.title}
+                    style={{ 
+                      width: '100%', 
+                      height: '200px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px 8px 0 0' 
+                    }}
+                    onError={(e) => {
+                      console.error('Image load error:', {
+                        src: e.target.src,
+                        event: event.image,
+                        baseURL: axios.defaults.baseURL
+                      });
+                      e.target.src = 'https://via.placeholder.com/300x200?text=Event+Image';
+                    }}
+                  />
+                </div>
               )}
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
                 {event.title}

@@ -685,6 +685,42 @@ app.get('/check-image/:filename', async (req, res) => {
   }
 });
 
+// Add this near the top of your server.js after other imports
+const path = require('path');
+const fs = require('fs');
+
+// Create uploads directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Created uploads directory at:', uploadDir);
+}
+
+// Update the static file serving
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Add this route to debug image paths
+app.get('/debug-image/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filepath = path.join(__dirname, 'uploads', filename);
+  
+  fs.access(filepath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.json({
+        exists: false,
+        requestedPath: filepath,
+        error: err.message
+      });
+    } else {
+      res.json({
+        exists: true,
+        path: filepath,
+        stats: fs.statSync(filepath)
+      });
+    }
+  });
+});
+
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
