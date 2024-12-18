@@ -643,6 +643,37 @@ app.get('/test-image/:filename', (req, res) => {
   }
 });
 
+// Add this new route at the bottom before app.listen
+app.get('/check-image/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const filepath = path.join(__dirname, 'uploads', filename);
+    
+    // Check if file exists
+    if (fs.existsSync(filepath)) {
+      // Get file stats
+      const stats = fs.statSync(filepath);
+      res.json({
+        exists: true,
+        path: filepath,
+        size: stats.size,
+        created: stats.birthtime
+      });
+    } else {
+      res.json({
+        exists: false,
+        path: filepath,
+        searchedIn: __dirname + '/uploads'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
