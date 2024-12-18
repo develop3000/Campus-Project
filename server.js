@@ -46,6 +46,17 @@ app.use(
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Created uploads directory at:', uploadDir);
+} else {
+  console.log('Uploads directory exists at:', uploadDir);
+  // List contents of uploads directory
+  fs.readdir(uploadDir, (err, files) => {
+    if (err) {
+      console.error('Error reading uploads directory:', err);
+    } else {
+      console.log('Files in uploads directory:', files);
+    }
+  });
 }
 
 // Update static file serving with proper CORS headers
