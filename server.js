@@ -8,7 +8,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { Pool } = require("pg");
-const AWS = require('aws-sdk');
 
 const app = express();
 
@@ -58,23 +57,6 @@ app.use("/uploads", (req, res, next) => {
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 }, express.static(uploadDir));
-
-// Example using AWS S3 or similar service
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY
-});
-
-// Update your upload middleware to store in S3
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: 'your-bucket-name',
-    key: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname))
-    }
-  })
-});
 
 // Helper Functions
 const authenticateToken = (req, res, next) => {
@@ -146,7 +128,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/createEvent", authenticateToken, requireAdmin, upload.single('image'), async (req, res) => {
+app.post("/createEvent", authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { title, description, date, time, location, organizer, category } = req.body;
     const image = req.file ? req.file.filename : null;
@@ -287,7 +269,7 @@ app.get("/event/:id", async (req, res) => {
 });
 
 // Update event
-app.put("/event/:id", authenticateToken, requireAdmin, upload.single('image'), async (req, res) => {
+app.put("/event/:id", authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, date, time, location, organizer, category } = req.body;
