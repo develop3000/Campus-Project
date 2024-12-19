@@ -8,6 +8,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { Pool } = require("pg");
+const AWS = require('aws-sdk');
 
 const app = express();
 
@@ -58,19 +59,21 @@ app.use("/uploads", (req, res, next) => {
   next();
 }, express.static(uploadDir));
 
-// Multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+// Example using AWS S3 or similar service
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY
 });
 
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }
+// Update your upload middleware to store in S3
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'your-bucket-name',
+    key: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname))
+    }
+  })
 });
 
 // Helper Functions
