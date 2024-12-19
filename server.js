@@ -225,6 +225,134 @@ app.get('/debug-image/:filename', (req, res) => {
   });
 });
 
+app.delete("/event/:id", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // First check if the event exists
+    const eventExists = await pool.query('SELECT * FROM "Events" WHERE id = $1', [id]);
+    if (eventExists.rowCount === 0) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // Get event details for image deletion
+    const eventQuery = 'SELECT image FROM "Events" WHERE id = $1';
+    const eventResult = await pool.query(eventQuery, [id]);
+    const event = eventResult.rows[0];
+
+    // Delete RSVPs first (if you have them)
+    await pool.query('DELETE FROM "RSVPs" WHERE event_id = $1', [id]);
+
+    // Delete the event
+    const deleteQuery = 'DELETE FROM "Events" WHERE id = $1 RETURNING *';
+    await pool.query(deleteQuery, [id]);
+
+    // Delete image file if it exists
+    if (event && event.image) {
+      const imagePath = path.join(uploadDir, event.image);
+      fs.unlink(imagePath, (err) => {
+        if (err) console.error('Error deleting image file:', err);
+      });
+    }
+
+    res.json({ message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    res.status(500).json({ error: "Failed to delete event" });
+  }
+});
+
+// Get single event details
+app.get("/event/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = `
+      SELECT * FROM "Events" 
+      WHERE id = $1
+    `;
+    const result = await pool.query(query, [id]);
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error fetching event:", error);
+    res.status(500).json({ error: "Failed to fetch event" });
+  }
+});
+
+// Update event
+app.put("/event/:id", authenticateToken, requireAdmin, upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, date, time, location, organizer, category } = req.body;
+    const image = req.file ? req.file.filename : undefined;
+
+    let query = `
+      UPDATE "Events" 
+      SET title = $1, description = $2, date = $3, time = $4, 
+          location = $5, organizer = $6, category = $7
+    `;
+    let values = [title, description, date, time, location, organizer, category];
+
+    if (image) {
+      query += `, image = $${values.length + 1}`;
+      values.push(image);
+    }
+
+    query += `, "updatedAt" = NOW() WHERE id = $${values.length + 1} RETURNING *`;
+    values.push(id);
+
+    const result = await pool.query(query, values);
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating event:", error);
+    res.status(500).json({ error: "Failed to update event" });
+  }
+});
+
+// Get user's events (events they've RSVP'd to)
+app.get("/my-events", authenticateToken, async (req, res) => {
+  try {
+    const query = `
+      SELECT e.*, r.status as rsvp_status
+      FROM "Events" e
+      JOIN "RSVPs" r ON e.id = r.event_id
+      WHERE r.user_id = $1
+      ORDER BY e.date ASC
+    `;
+    const result = await pool.query(query, [req.user.id]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching user's events:", error);
+    res.status(500).json({ error: "Failed to fetch user's events" });
+  }
+});
+
+// Get events by category
+app.get("/events/category/:category", async (req, res) => {
+  try {
+    const { category } = req.params;
+    const query = `
+      SELECT * FROM "Events" 
+      WHERE category = $1
+      ORDER BY date ASC
+    `;
+    const result = await pool.query(query, [category]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching events by category:", error);
+    res.status(500).json({ error: "Failed to fetch events" });
+  }
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
