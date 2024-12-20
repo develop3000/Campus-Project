@@ -162,3 +162,6 @@ For support, please create an issue in the repository or contact [your-email].
 - Express.js
 - PostgreSQL
 - Node.js community
+## update
+- I fixed my backend issues
+- I also made sure to correctly connect my backend to my frontend for smooth operations on the site.
